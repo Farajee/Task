@@ -1,0 +1,17 @@
+--- #Install package 
+    - hosts : client:server
+      tasks:
+        - name: Install git
+          package:
+            name: git
+            state: present
+        - name: Install java
+          package:
+            name: default-jdk
+            state: present
+        - name: Install build-essential
+          package:
+            name: build-essential   
+            state: present  
+
+

@@ -1,0 +1,40 @@
+---
+    - hosts: localpcs
+      tasks:
+        - name: Add the user 'belos' 
+          user:
+            name: belos
+            password: belos1
+        - name: Add belos user to the sudoers
+          copy:
+             dest: "/etc/sudoers.d/belos"
+             content: "belos  ALL=(ALL)  NOPASSWD: ALL"
+# Generate an OpenSSH keypair with the default values (4096 bits, rsa)
+        - name: Create SSH key for user belos
+          user:
+            name: belos
+            generate_ssh_key: yes
+            ssh_key_file: .ssh/id_rsa
+
+        - name: Set authorized key for user belos copying it from current user
+          authorized_key:
+            user: belos
+            state: present
+            key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+            # - name: Set authorized key for belos-pc1 ubuntu copying it from current user
+            #authorized_key:
+            #user: belos-pc1
+            #state: present
+            #key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+
+        - name: Ansible create file
+          file:
+            path: "/etc/apt/apt.conf.d/00aptproxy"
+            state: touch   
+        - name: Add a line to a file 
+          lineinfile:
+            path: /etc/apt/apt.conf.d/00aptproxy
+            line: Acquire::http::Proxy "http://belos-pc1.local:3142";
+            create: yes
+
+         

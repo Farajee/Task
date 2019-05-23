@@ -1,0 +1,10 @@
+[localpcs]
+#belos-pc1
+belos 
+#localhost
+#ansible
+#postgres
+[server]
+belos-pc1
+[client]
+belos
