@@ -1,0 +1,65 @@
+---
+    - hosts: localpcs 
+      become: yes
+      become_user: root
+      tasks:
+        - name: Add the user 'belos' 
+          user:
+            name: belos
+            password: $1$JQxn7X40$eb1xJ.ELuzdtNYIHNilie1
+            
+        - name: Set authorized key for user belos copying it from current user
+          authorized_key:
+            user: belos
+            state: present
+            key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+          
+        - name: Ansible create file
+          file:
+            path: "/etc/apt/apt.conf.d/00aptproxy"
+            state: touch   
+        - name: Add a line to a file 
+          lineinfile:
+            path: /etc/apt/apt.conf.d/00aptproxy
+            line: Acquire::http::Proxy "http://belos-pc1.local:3142";
+            state: present
+      
+        - name: Install NFS client
+          package:
+            name: nfs-common
+            state: present
+          when: "inventory_hostname != 'belos-pc1'"
+          #inventory_hostname != ansible
+        - name: Create Client Mount Directory
+          file:
+            path: /srv/files
+            state: directory
+            mode: '0755'
+        - name: Mount the filesystem on the client from the NFS server
+          shell: mount -t nfs 192.168.1.149:/srv/files /srv/files
+          register: result
+          when: "inventory_hostname != 'belos-pc1'"
+
+#Install package 
+        - name: Install git
+          package:
+            name: git
+            state: present
+          tags: 
+          - packages  
+        - name: Install java
+          package:
+            name: default-jdk
+            state: present
+          tags:
+          - packages       
+        - name: Install build-essential
+          package:
+            name: build-essential
+            state: present
+          tags:
+          - packages        
+
+
+      
+
