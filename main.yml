@@ -29,7 +29,7 @@
             name: nfs-common
             state: present
           when: "inventory_hostname != 'belos-pc1'"
-          #inventory_hostname != ansible
+    
         - name: Create Client Mount Directory
           file:
             path: /srv/files
